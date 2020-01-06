@@ -1,0 +1,7 @@
+#Below Keys for controller names are singular in nature. Take reference from below examples
+#e.g for tables_cntroller - Key would be 'Table'
+#e.g for tenancyinventories_controller - Key would be 'Tenancyinventory'
+
+Analytic: 'Web Analytics'
+Application: 'Application Controller'
+Usagegraphs: 'Usage Analysis Graphs'

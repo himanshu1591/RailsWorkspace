@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sample Tool</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'capacity' %>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body>
+
+  <div class="header">
+    <h>Sample Tool <%=yield(:title)%></h>
+    <div class="header-right">
+      <a class="active" href="example.com">Home</a>
+      <a href="example2.com">Help</a>
+    </div>
+  </div>
+    <%= yield %>
+  </body>
+</html>

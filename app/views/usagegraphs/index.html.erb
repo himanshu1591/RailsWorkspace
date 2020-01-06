@@ -1,0 +1,186 @@
+<head>
+
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js'></script>
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css' rel='stylesheet'/>
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'/>
+  <link rel='stylesheet' href='https://cdn.rawgit.com/pingcheng/bootstrap4-datetimepicker/master/build/css/bootstrap-datetimepicker.min.css'>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js'></script>
+  <script type='text/javascript' src='https://cdn.rawgit.com/pingcheng/bootstrap4-datetimepicker/master/build/js/bootstrap-datetimepicker.min.js'></script>
+
+  <style>
+    .background {
+      background-color: #F0F0F0;
+      border: 1px solid #ddd;
+      align-items: center;
+    }
+
+    .form-control-inline {
+      min-width: 0;
+      max-width: 400px;
+      display: inline;
+    }
+
+    html {
+      font-size: 100%;
+    }
+
+    marghead {
+      margin-left: 60px;
+    }
+
+  </style>
+
+</head>
+
+<div class='panel panel-primary background'>
+  <div class='panel-body '>
+    <form>
+      <div style='display: flex;align-items: center;'>
+        <div class='col-md-1 form-group'><b>Chart Period</b>
+          <%= select_tag :chart_period, options_for_select(['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly', 'Custom'], params[:chart_period]), prompt: '-select-', onChange: 'time_period_selector()', class: 'form-control' %>
+        </div>
+
+        <div class='col-md-1 form-group'><b>Chart Type</b>
+          <%= select_tag(:chart_type, options_for_select(['Users', 'Reports'], params[:chart_type]), prompt: '-select-', class: 'form-control') %>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Daily' ? '' : 'none' %>;' class='col-md-2 input-group date' id='datepicker' data-date-format='dd-mm-yyyy' style='width: 200px'>
+          <input type='text' name='datepicker' id='datepicker' class='form-control' style='cursor: pointer' placeholder='Select Date'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Weekly' ? '' : 'none' %>;' class='col-md-3 input-group date' id='weekpicker1' style='width: 200px'>
+          <input type='text' id='weekpicker' placeholder='Select Week' name='weekpicker' class='form-control' style='cursor: pointer'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Monthly' ? '' : 'none' %>;' class='col-md-1 input-group date' id='monthpicker' data-date-format='mm-yyyy' style='width: 200px'>
+          <input type='text' name='monthpicker' id='monthpicker' class='form-control' style='cursor: pointer' placeholder='Select Month'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Quarterly' ? '' : 'none' %>;' class='col-md-2 input-group date' id='quarterpicker' style='width: 200px'>
+          <input type='text' id='quarterpicker' name='quarterpicker' class='form-control' style='cursor: pointer' placeholder='Select Quarter'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Yearly' ? '' : 'none' %>;' class='col-md-2 input-group date' id='yearpicker' data-date-format='yyyy' style='width: 200px'>
+          <input type='text' name='yearpicker' id='yearpicker' class='form-control' style='cursor: pointer' placeholder='Select Year'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Custom' ? '' : 'none' %>;' class='col-md-2 input-group date' id='cstartpicker' data-date-format='yyyy-mm-dd' style='width: 200px'>
+          <input type='text' name='cstartpicker' id='cstartpicker' class='form-control' style='cursor: pointer' placeholder='Select Start Date'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display:<%= session[:chart_period] == 'Custom' ? '' : 'none' %>;' class='col-md-2 input-group date' id='cendpicker' data-date-format='yyyy-mm-dd' style='width: 200px'>
+          <input type='text' name='cendpicker' id='cendpicker' class='form-control' style='cursor: pointer' placeholder='Select End Date'/>
+          <span class='input-group-addon'><i class='glyphicon glyphicon-calendar'></i></span>
+        </div>
+
+        <div style='display: inline-flex;' class='col-md-1' id='formsubmit'>
+          <nobr><input type='submit' class='btn btn-dark btn-sm form-control' value='Submit'>
+        </div>
+    </form>
+
+    <div style='display: inline-flex;' class='col-md-1' id='exportcsv' style='width: 200px'>
+      <%= link_to 'Export CSV', url_for(format: 'csv'), class: 'btn btn-dark btn-sm form-control' %></nobr>
+    </div>
+  </div>
+</div>
+</div>
+
+<% if session[:date_val].nil? %>
+  <marghead><i><b>No Data</b></i></marghead><br>
+<% else %>
+  <marghead><i><b><%= session[:chart_period] %> report for <%= session[:date_val].inspect %></b></i></marghead><br>
+  <%= column_chart session[:data_src], xtitle: session[:chart_type], ytitle: 'Count', messages: {empty: 'No data'}, label: 'Value', download: true %>
+<% end %>
+
+<script type='text/javascript'>
+
+    function time_period_selector() {
+        if ($('#chart_period').val() == 'Daily') {
+            $('.date').hide();
+            $('#datepicker').show();
+        } else if ($('#chart_period').val() == 'Monthly') {
+            $('.date').hide();
+            $('#monthpicker').show();
+        } else if ($('#chart_period').val() == 'Quarterly') {
+            $('.date').hide();
+            $('#quarterpicker').show();
+        } else if ($('#chart_period').val() == 'Yearly') {
+            $('.date').hide();
+            $('#yearpicker').show();
+        } else if ($('#chart_period').val() == 'Weekly') {
+            $('.date').hide();
+            $('#weekpicker1').show();
+        } else if ($('#chart_period').val() == 'Custom') {
+            $('.date').hide();
+            $('#cstartpicker').show();
+            $('#cendpicker').show();
+        } else {
+        }
+    }
+
+    $('#datepicker').datepicker();
+
+    $('#monthpicker').datepicker({
+        format: 'mm-yyyy',
+        viewMode: 'months',
+        minViewMode: 'months'
+    });
+
+    $('#weekpicker').datetimepicker({
+        format: 'YYYY-MM-DD'
+    });
+
+    $('#weekpicker').on('dp.change', function (e) {
+        var value = $('#weekpicker').val();
+        var firstDate = moment(value, 'YYYY-MM-DD').day(0).format('YYYY-MM-DD');
+        var lastDate = moment(value, 'YYYY-MM-DD').day(6).format('YYYY-MM-DD');
+        $('#weekpicker').val(firstDate + ' : ' + lastDate);
+    });
+
+    $.fn.datepicker.dates['qtrs'] = {
+        days: ['Sunday', 'Moonday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        daysShort: ['Sun', 'Moon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        months: ['Q1', 'Q2', 'Q3', 'Q4', '', '', '', '', '', '', '', ''],
+        monthsShort: ["Jan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Feb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mar", "Apr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;May&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jun", "Jul&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aug&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sep", "Oct&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nov&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dec", '', '', '', '', '', '', '', ''],
+        today: 'Today',
+        clear: 'Clear',
+        format: 'mm/dd/yyyy',
+        titleFormat: 'MM-yyyy',
+        weekStart: 0
+    };
+
+    $('#quarterpicker').datepicker({
+        format: 'MM-yyyy',
+        minViewMode: 1,
+        autoclose: true,
+        language: 'qtrs',
+        forceParse: false
+    }).on('show', function (event) {
+
+        $('.month').each(function (index, element) {
+            element.style.width = '100%';
+            if (index > 3) $(element).hide();
+        });
+
+    });
+
+    $('#yearpicker').datepicker({
+        format: 'yyyy',
+        viewMode: 'years',
+        minViewMode: 'years'
+    });
+
+    $('#cstartpicker').datepicker();
+
+    $('#cendpicker').datepicker();
+
+</script>

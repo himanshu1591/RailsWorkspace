@@ -1,0 +1,33 @@
+<h1><%= content_for(:title, " -  Usage Analytics") %></h1>
+<div class="panel panel-primary background">
+    <div class="panel-body ">
+        <div class="containert">
+            <h>
+                <%= datagrid_form_for @grid, :method => :get, :url => analytics_path %>
+            </h>
+        </div>
+    </div>
+</div>
+
+<div class="pagination_container">
+    <div>
+        <h>
+            <%= paginate(@grid.assets) %>
+        </h>
+        <l>
+            <% if params[:"#{controller.controller_name}_grid"] %>
+                <%=  link_to "<button>Export CSV</button>".html_safe, url_for(format: 'csv', "#{controller.controller_name}_grid": params[:"#{controller.controller_name}_grid"].permit!)%>
+            <% else %>
+                <%=  link_to "<button>Export CSV</button>".html_safe, url_for(format: 'csv', "#{controller.controller_name}_grid": params[:"#{controller.controller_name}_grid"])%>
+            <% end %>
+        </l>
+    </div>
+    <r>
+        <%= number_field_tag :limit, params[:limit], placeholder: "Records per Page", style:"width:145px;", :onchange => "if(this.value){window.location='?limit='+this.value;}" %>&nbsp;
+            <%= page_entries_info @grid.assets, entry_name: 'Records' %>
+    </r>
+</div>
+
+<div class="table">
+    <%= datagrid_table @grid %>
+</div>
